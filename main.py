@@ -1,0 +1,69 @@
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+import openai
+import os
+import time
+
+app = Flask(__name__, static_url_path='', static_folder='static')
+CORS(app)
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+ASSISTANT_ID = os.getenv("ASSISTANT_ID")
+session_thread_id = None
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('static', 'index.html')
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    global session_thread_id
+    user_input = request.json.get('message', '')
+
+    try:
+        if not session_thread_id:
+            thread = openai.beta.threads.create()
+            session_thread_id = thread.id
+
+        openai.beta.threads.messages.create(
+            thread_id=session_thread_id,
+            role="user",
+            content=user_input
+        )
+
+        run = openai.beta.threads.runs.create(
+            assistant_id=ASSISTANT_ID,
+            thread_id=session_thread_id
+        )
+
+        while True:
+            run_status = openai.beta.threads.runs.retrieve(
+                thread_id=session_thread_id,
+                run_id=run.id
+            )
+            if run_status.status == "completed":
+                break
+            time.sleep(1)
+
+        messages = openai.beta.threads.messages.list(thread_id=session_thread_id)
+        reply = messages.data[0].content[0].text.value
+
+        if "Prompt:" in reply or "prompt:" in reply or "here is your prompt" in reply.lower():
+            prompt_text = reply.split("Prompt:")[-1].strip()
+            dalle_response = openai.images.generate(
+                model="dall-e-3",
+                prompt=prompt_text,
+                size="1024x1024",
+                quality="standard",
+                n=1
+            )
+            image_url = dalle_response.data[0].url
+            return jsonify({'response': reply, 'image_url': image_url})
+
+        return jsonify({'response': reply})
+
+    except Exception as e:
+        return jsonify({'response': f'Fehler: {str(e)}'})
+
+if __name__ == '__main__':
+    app.run(debug=True)
