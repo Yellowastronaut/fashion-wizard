@@ -48,11 +48,11 @@ def chat():
         messages = openai.beta.threads.messages.list(thread_id=session_thread_id)
         reply = messages.data[0].content[0].text.value
 
-        if "Prompt:" in reply or "prompt:" in reply or "here is your prompt" in reply.lower():
-            prompt_text = reply.split("Prompt:")[-1].strip()
+        # Trigger-Erkennung über Schlüsselwörter
+        if any(phrase in reply.lower() for phrase in ["a photo of", "ideal for a fashion editorial", "high quality image of", "styled photo"]):
             dalle_response = openai.images.generate(
                 model="dall-e-3",
-                prompt=prompt_text,
+                prompt=reply,
                 size="1024x1024",
                 quality="standard",
                 n=1

@@ -5,111 +5,82 @@
   <title>Fashion Wizard</title>
   <style>
     body {
-      font-family: 'Helvetica Neue', sans-serif;
-      background: #f2f2f2;
-      padding: 40px;
+      font-family: Arial, sans-serif;
       max-width: 800px;
       margin: auto;
-    }
-    .upload-box, .chatbox, .result {
-      background: white;
-      border-radius: 10px;
       padding: 20px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
+      background: #f4f4f4;
     }
-    .message {
-      margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 6px;
-    }
-    .gpt { background: #e6f4ea; }
-    .user { background: #dddddd; }
-    textarea {
-      width: 100%;
-      height: 70px;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #bbb;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background: black;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    img {
-      max-width: 100%;
-      margin-top: 15px;
+    h1 { text-align: center; }
+    .box {
+      background: white;
       border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
+    .chat { margin-bottom: 10px; }
+    .chat.user { color: black; }
+    .chat.gpt { background: #e8f5e9; padding: 10px; border-radius: 5px; }
+    textarea { width: 100%; height: 80px; margin-top: 10px; }
+    button { padding: 10px 20px; margin-top: 10px; }
+    img { max-width: 100%; margin-top: 20px; border-radius: 10px; }
   </style>
 </head>
 <body>
+  <h1>🧠 Fashion Wizard</h1>
 
-  <h1>🎨 Fashion Wizard</h1>
-
-  <div class="upload-box">
-    <label><strong>1️⃣ Produktbild hochladen (noch ohne Funktion):</strong></label><br>
-    <input type="file" id="imageUpload" accept="image/*">
+  <div class="box">
+    <label><strong>Produktbild hochladen (noch ohne Funktion):</strong></label><br>
+    <input type="file" />
   </div>
 
-  <div class="chatbox" id="chatbox">
-    <div class="message gpt"><strong>GPT:</strong> Willkommen! Ich helfe dir, dein Produkt perfekt in Szene zu setzen. Für wen ist das Kleidungsstück gedacht?</div>
+  <div class="box" id="chatbox">
+    <div class="chat gpt">GPT: Willkommen! Ich helfe dir, dein Produkt perfekt in Szene zu setzen. Für wen ist das Kleidungsstück gedacht?</div>
   </div>
 
   <textarea id="userInput" placeholder="Deine Antwort hier eingeben..."></textarea>
   <button onclick="sendMessage()">Antwort senden</button>
 
-  <div class="result" id="result" style="display: none;">
-    <h3>🖼️ Ergebnis:</h3>
-    <img id="generatedImage" src="" alt="Generiertes Bild">
+  <div class="box" id="result" style="display:none;">
+    <h3>🖼️ Ergebnisbild:</h3>
+    <img id="resultImage" src="" />
   </div>
 
   <script>
     async function sendMessage() {
       const chatbox = document.getElementById("chatbox");
       const input = document.getElementById("userInput");
-      const userText = input.value.trim();
+      const text = input.value;
 
-      if (!userText) return;
+      if (!text) return;
 
-      const userMsg = document.createElement("div");
-      userMsg.className = "message user";
-      userMsg.innerHTML = "<strong>Du:</strong> " + userText;
-      chatbox.appendChild(userMsg);
+      const userDiv = document.createElement("div");
+      userDiv.className = "chat user";
+      userDiv.textContent = "Du: " + text;
+      chatbox.appendChild(userDiv);
 
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText })
+        body: JSON.stringify({ message: text })
       });
 
       const data = await res.json();
-      const gptReply = data.response;
-
-      const gptMsg = document.createElement("div");
-      gptMsg.className = "message gpt";
-      gptMsg.innerHTML = "<strong>GPT:</strong> " + gptReply;
-      chatbox.appendChild(gptMsg);
+      const gptDiv = document.createElement("div");
+      gptDiv.className = "chat gpt";
+      gptDiv.textContent = "GPT: " + data.response;
+      chatbox.appendChild(gptDiv);
 
       if (data.image_url) {
-        const img = document.getElementById("generatedImage");
-        const resultBox = document.getElementById("result");
+        const img = document.getElementById("resultImage");
         img.src = data.image_url;
-        resultBox.style.display = "block";
+        document.getElementById("result").style.display = "block";
       }
 
       input.value = "";
       chatbox.scrollTop = chatbox.scrollHeight;
     }
   </script>
-
 </body>
 </html>
