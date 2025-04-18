@@ -4,21 +4,9 @@
   <meta charset="UTF-8">
   <title>Fashion Wizard</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-      background: #f4f4f4;
-    }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; background: #f4f4f4; }
     h1 { text-align: center; }
-    .box {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
+    .box { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
     .chat { margin-bottom: 10px; }
     .chat.user { color: black; }
     .chat.gpt { background: #e8f5e9; padding: 10px; border-radius: 5px; }
@@ -29,30 +17,16 @@
 </head>
 <body>
   <h1>🧠 Fashion Wizard</h1>
-
-  <div class="box">
-    <label><strong>Produktbild hochladen (noch ohne Funktion):</strong></label><br>
-    <input type="file" />
-  </div>
-
-  <div class="box" id="chatbox">
-    <div class="chat gpt">GPT: Willkommen! Ich helfe dir, dein Produkt perfekt in Szene zu setzen. Für wen ist das Kleidungsstück gedacht?</div>
-  </div>
-
+  <div class="box"><label><strong>Produktbild hochladen (noch ohne Funktion):</strong></label><br><input type="file" /></div>
+  <div class="box" id="chatbox"><div class="chat gpt">GPT: Willkommen! Ich helfe dir, dein Produkt perfekt in Szene zu setzen. Für wen ist das Kleidungsstück gedacht?</div></div>
   <textarea id="userInput" placeholder="Deine Antwort hier eingeben..."></textarea>
   <button onclick="sendMessage()">Antwort senden</button>
-
-  <div class="box" id="result" style="display:none;">
-    <h3>🖼️ Ergebnisbild:</h3>
-    <img id="resultImage" src="" />
-  </div>
-
+  <div class="box" id="result" style="display:none;"><h3>🖼️ Ergebnisbild:</h3><img id="resultImage" src="" /></div>
   <script>
     async function sendMessage() {
       const chatbox = document.getElementById("chatbox");
       const input = document.getElementById("userInput");
       const text = input.value;
-
       if (!text) return;
 
       const userDiv = document.createElement("div");

@@ -15,7 +15,7 @@ session_thread_id = None
 def serve_index():
     return send_from_directory('static', 'index.html')
 
-@app.route('/api/chat', methods=['POST'])
+@app.route('/api/chat", methods=["POST"])
 def chat():
     global session_thread_id
     user_input = request.json.get('message', '')
@@ -48,11 +48,14 @@ def chat():
         messages = openai.beta.threads.messages.list(thread_id=session_thread_id)
         reply = messages.data[0].content[0].text.value
 
-        # Trigger-Erkennung über Schlüsselwörter
-        if any(phrase in reply.lower() for phrase in ["a photo of", "ideal for a fashion editorial", "high quality image of", "styled photo"]):
+        # PROMPT-Autodetektion
+        lines = reply.splitlines()
+        prompt_lines = [line.strip() for line in lines if line.strip().startswith("A ") or line.strip().startswith("An ")]
+        if prompt_lines:
+            prompt = " ".join(prompt_lines)
             dalle_response = openai.images.generate(
                 model="dall-e-3",
-                prompt=reply,
+                prompt=prompt,
                 size="1024x1024",
                 quality="standard",
                 n=1
