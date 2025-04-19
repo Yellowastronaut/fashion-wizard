@@ -70,4 +70,8 @@ def upload_file():
         n=1
     )
     image_url = dalle_response.data[0].url
-app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+    return jsonify({'response': reply, 'image_url': image_url})
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
